@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL;  // Change only if your backend port is different
+const API_URL = "https://games-store-5.onrender.com/games";  // Change only if your backend port is different
 
 const api = axios.create({
   baseURL: API_URL,
