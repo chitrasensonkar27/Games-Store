@@ -16,6 +16,10 @@ function App() {
   const [sortBy, setSortBy] = useState('newest')
   const [currentTheme, setCurrentTheme] = useState('dracula')
 
+  // Delete confirmation states
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [gameToDelete, setGameToDelete] = useState(null) // now stores the full game object
+
   const categories = ['all', 'action', 'adventure', 'simulation', 'rpg', 'sports', 'puzzle', 'strategy', 'racing']
 
   // Theme Toggle
@@ -52,7 +56,8 @@ function App() {
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim()
       result = result.filter(g =>
-        g.title.toLowerCase().includes(term) || g.developer.toLowerCase().includes(term)
+        g.title.toLowerCase().includes(term) ||
+        g.developer.toLowerCase().includes(term)
       )
     }
     if (selectedCategory !== 'all') result = result.filter(g => g.category === selectedCategory)
@@ -70,10 +75,10 @@ function App() {
     try {
       if (editingGame) {
         await updateGame(editingGame._id, data)
-        toast.success(' Game updated successfully!')
+        toast.success('Game updated successfully!')
       } else {
         await createGame(data)
-        toast.success(' New game added successfully!')
+        toast.success('New game added successfully!')
       }
       fetchGames()
       setModalOpen(false)
@@ -83,20 +88,35 @@ function App() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this game permanently?')) return
+  // Updated: Now receives the full game object to show title
+  const requestDelete = (game) => {
+    setGameToDelete(game)
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!gameToDelete) return
+
     try {
-      await deleteGame(id)
-      toast.success(' Game deleted successfully')
+      await deleteGame(gameToDelete._id)
+      toast.success('Game deleted successfully!')
       fetchGames()
     } catch (err) {
       toast.error('Delete failed')
+    } finally {
+      setDeleteConfirmOpen(false)
+      setGameToDelete(null)
     }
+  }
+
+  const cancelDelete = () => {
+    setDeleteConfirmOpen(false)
+    setGameToDelete(null)
   }
 
   return (
     <div className="min-h-screen bg-base-200">
-      {/* Clean Navbar - "Games Store" only */}
+      {/* Navbar */}
       <div className="navbar bg-base-100 shadow-lg sticky top-0 z-50">
         <div className="navbar-start px-6 flex items-center gap-4">
           <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center text-white text-3xl shadow-inner">🎮</div>
@@ -135,6 +155,7 @@ function App() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
+        {/* Filters */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-base-100 p-5 rounded-3xl shadow">
           <div className="flex gap-4">
             <select className="select select-bordered" value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
@@ -164,6 +185,7 @@ function App() {
           </div>
         </div>
 
+        {/* Games Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => <div key={i} className="skeleton h-96 rounded-3xl"></div>)}
@@ -180,7 +202,7 @@ function App() {
                 key={game._id}
                 game={game}
                 onEdit={(g) => { setEditingGame(g); setModalOpen(true) }}
-                onDelete={handleDelete}
+                onDelete={() => requestDelete(game)}  // ← Now passes full game object
                 onView={(g) => toast.success(`Opened ${g.title}`)}
               />
             ))}
@@ -188,12 +210,29 @@ function App() {
         )}
       </div>
 
+      {/* Add/Edit Modal */}
       <GameModal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditingGame(null) }}
         game={editingGame}
         onSave={handleSave}
       />
+
+      {/* Delete Confirmation Modal with Game Title */}
+      <dialog className={`modal ${deleteConfirmOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box max-w-md">
+          <h3 className="font-bold text-lg text-error">Confirm Deletion</h3>
+          <p className="py-4">
+            Are you sure you really want to delete <strong>"{gameToDelete?.title || 'this game'}"</strong>?<br />
+            This action cannot be undone.
+          </p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={cancelDelete}>Cancel</button>
+            <button className="btn btn-error" onClick={confirmDelete}>Yes, Delete</button>
+          </div>
+        </div>
+        <div className="modal-backdrop" onClick={cancelDelete}></div>
+      </dialog>
     </div>
   )
 }
