@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5000/games'   // Change only if your backend port is different
+const API_URL = import.meta.env.VITE_API_URL;  // Change only if your backend port is different
 
 const api = axios.create({
   baseURL: API_URL,
