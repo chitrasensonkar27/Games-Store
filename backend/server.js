@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import gamesRouter from './src/routes/games.js';
+import { json } from 'node:stream/consumers';
 
 // Load environment variables
 dotenv.config();
@@ -16,7 +17,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: "*"
+  //origin: "*"
 }));
 
 // MongoDB Connection
@@ -37,7 +38,7 @@ app.use('/games', gamesRouter);
 
 //checking runing backend or not
 app.get('/', (req, res) => {
-  res.json({ message: 'Games Store Backend Running' });
+  res.json(json);
 });
 
 // Start server
