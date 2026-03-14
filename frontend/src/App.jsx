@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Plus, Search, Sun, Moon } from 'lucide-react'
+import { Plus, Search, Sun, Moon, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import GameCard from './components/GameCard'
 import GameModal from './components/GameModal'
@@ -114,7 +114,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {/* Navbar - Search always visible */}
+      {/* Navbar with YouTube-like Professional Search Bar */}
       <div className="navbar bg-base-100 shadow-lg sticky top-0 z-50">
         <div className="navbar-start px-4 sm:px-6 flex items-center gap-3 sm:gap-4">
           <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl sm:text-3xl shadow-inner">
@@ -123,17 +123,28 @@ function App() {
           <h1 className="text-2xl sm:text-3xl font-black tracking-tighter text-base-content">Games Store</h1>
         </div>
 
-        {/* Search bar - always visible */}
-        <div className="navbar-center flex-1 px-2 lg:px-0">
-          <div className="relative w-full max-w-md mx-auto">
-            <input
-              type="text"
-              placeholder="Search games or developer..."
-              className="input input-bordered w-full pl-10 pr-4 text-sm sm:text-base"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-base-content/60 pointer-events-none" />
+        {/* YouTube-style Search Bar - Large, Centered, Professional */}
+        <div className="navbar-center flex-1 px-2 sm:px-4 lg:px-6">
+          <div className="relative w-full max-w-2xl mx-auto">
+            <div className="flex items-center bg-base-200 rounded-full border border-base-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 transition-all duration-200 shadow-sm hover:shadow">
+              <Search className="ml-4 w-5 h-5 sm:w-6 sm:h-6 text-base-content/70 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search games or developers..."
+                className="flex-1 bg-transparent border-none outline-none px-3 py-2.5 sm:py-3 text-base sm:text-lg placeholder:text-base-content/50"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button
+                  className="mr-3 btn btn-ghost btn-xs p-1 hover:bg-base-300 rounded-full transition-colors"
+                  onClick={() => setSearchTerm('')}
+                  title="Clear search"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -148,16 +159,15 @@ function App() {
 
           <button
             onClick={() => { setEditingGame(null); setModalOpen(true) }}
-            className="btn btn-primary btn-sm sm:btn-md gap-2 shadow-md"
+            className="btn btn-primary gap-2"
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" /> Add
+            <Plus className="w-5 h-5" /> Add
           </button>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* The rest of your code remains EXACTLY the same */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-8 bg-base-100 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow">
           <div className="flex flex-wrap gap-3 sm:gap-4 w-full sm:w-auto">
             <select className="select select-bordered select-sm sm:select-md flex-1 min-w-[140px]" value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
@@ -184,11 +194,10 @@ function App() {
           </div>
 
           <div className="text-sm font-medium text-base-content/70 whitespace-nowrap">
-            {filteredGames.length} game{filteredGames.length !== 1 ? 's' : ''} found
+            {filteredGames.length} games found
           </div>
         </div>
 
-        {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
