@@ -18,7 +18,7 @@ function App() {
 
   // Delete confirmation states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [gameToDelete, setGameToDelete] = useState(null) // now stores the full game object
+  const [gameToDelete, setGameToDelete] = useState(null)
 
   const categories = ['all', 'action', 'adventure', 'simulation', 'rpg', 'sports', 'puzzle', 'strategy', 'racing']
 
@@ -88,15 +88,13 @@ function App() {
     }
   }
 
-  // Updated: Now receives the full game object to show title
   const requestDelete = (game) => {
     setGameToDelete(game)
     setDeleteConfirmOpen(true)
   }
 
   const confirmDelete = async () => {
-    if (!gameToDelete) return
-
+    if (!gameToDelete?._id) return
     try {
       await deleteGame(gameToDelete._id)
       toast.success('Game deleted successfully!')
@@ -116,30 +114,33 @@ function App() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {/* Navbar */}
+      {/* Navbar - Search always visible */}
       <div className="navbar bg-base-100 shadow-lg sticky top-0 z-50">
-        <div className="navbar-start px-6 flex items-center gap-4">
-          <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center text-white text-3xl shadow-inner">🎮</div>
-          <h1 className="text-3xl font-black tracking-tighter text-base-content">Games Store</h1>
+        <div className="navbar-start px-4 sm:px-6 flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl sm:text-3xl shadow-inner">
+            🎮
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tighter text-base-content">Games Store</h1>
         </div>
 
-        <div className="navbar-center hidden lg:flex">
-          <div className="relative w-96">
+        {/* Search bar - always visible */}
+        <div className="navbar-center flex-1 px-2 lg:px-0">
+          <div className="relative w-full max-w-md mx-auto">
             <input
               type="text"
-              placeholder="Search any game or developer..."
-              className="input input-bordered w-full pl-11 focus:outline-none"
+              placeholder="Search games or developer..."
+              className="input input-bordered w-full pl-10 pr-4 text-sm sm:text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-4 top-3.5 w-5 h-5 text-base-content/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-base-content/60 pointer-events-none" />
           </div>
         </div>
 
-        <div className="navbar-end pr-6 flex items-center gap-3">
+        <div className="navbar-end px-4 sm:px-6 flex items-center gap-2 sm:gap-3">
           <button
             onClick={toggleTheme}
-            className="btn btn-ghost btn-circle text-xl"
+            className="btn btn-ghost btn-circle"
             title="Switch Theme"
           >
             {currentTheme === 'dracula' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -147,18 +148,19 @@ function App() {
 
           <button
             onClick={() => { setEditingGame(null); setModalOpen(true) }}
-            className="btn btn-primary gap-2 shadow-md"
+            className="btn btn-primary btn-sm sm:btn-md gap-2 shadow-md"
           >
-            <Plus className="w-5 h-5" /> Add New Game
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" /> Add
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         {/* Filters */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-base-100 p-5 rounded-3xl shadow">
-          <div className="flex gap-4">
-            <select className="select select-bordered" value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
+        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-8 bg-base-100 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow">
+          <div className="flex flex-wrap gap-3 sm:gap-4 w-full sm:w-auto">
+            <select className="select select-bordered select-sm sm:select-md flex-1 min-w-[140px]" value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
               {categories.map(c => (
                 <option key={c} value={c}>
                   {c === 'all' ? 'All Categories' : c.toUpperCase()}
@@ -166,43 +168,48 @@ function App() {
               ))}
             </select>
 
-            <select className="select select-bordered" value={selectedMode} onChange={e => setSelectedMode(e.target.value)}>
+            <select className="select select-bordered select-sm sm:select-md flex-1 min-w-[140px]" value={selectedMode} onChange={e => setSelectedMode(e.target.value)}>
               <option value="all">All Modes</option>
               <option value="Online">Online Only</option>
               <option value="Offline">Offline Only</option>
               <option value="both">Both</option>
             </select>
 
-            <select className="select select-bordered" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+            <select className="select select-bordered select-sm sm:select-md flex-1 min-w-[140px]" value={sortBy} onChange={e => setSortBy(e.target.value)}>
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
               <option value="downloads">Most Downloaded</option>
               <option value="title">A - Z</option>
             </select>
           </div>
-          <div className="text-sm font-medium text-base-content/70">
-            {filteredGames.length} games found
+
+          <div className="text-sm font-medium text-base-content/70 whitespace-nowrap">
+            {filteredGames.length} game{filteredGames.length !== 1 ? 's' : ''} found
           </div>
         </div>
 
-        {/* Games Grid */}
+        {/* Loading State */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => <div key={i} className="skeleton h-96 rounded-3xl"></div>)}
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
+            <p className="text-xl text-base-content/70">Loading Games Store...</p>
+            <p className="text-sm text-base-content/50 mt-2 max-w-md">
+              First load may take 20–60 seconds (Render free tier wake-up). Subsequent visits will be faster.
+            </p>
           </div>
         ) : filteredGames.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-3xl text-base-content/50">No games found</p>
+          <div className="text-center py-16 sm:py-20">
+            <p className="text-2xl sm:text-3xl text-base-content/50">No games found</p>
             <p className="text-base-content/40 mt-2">Try changing filters or search term</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredGames.map(game => (
               <GameCard
                 key={game._id}
                 game={game}
                 onEdit={(g) => { setEditingGame(g); setModalOpen(true) }}
-                onDelete={() => requestDelete(game)}  // ← Now passes full game object
+                onDelete={() => requestDelete(game)}
                 onView={(g) => toast.success(`Opened ${g.title}`)}
               />
             ))}
@@ -218,17 +225,22 @@ function App() {
         onSave={handleSave}
       />
 
-      {/* Delete Confirmation Modal with Game Title */}
+      {/* Delete Confirmation Modal */}
       <dialog className={`modal ${deleteConfirmOpen ? 'modal-open' : ''}`}>
-        <div className="modal-box max-w-md">
-          <h3 className="font-bold text-lg text-error">Confirm Deletion</h3>
-          <p className="py-4">
-            Are you sure you really want to delete <strong>"{gameToDelete?.title || 'this game'}"</strong>?<br />
+        <div className="modal-box w-11/12 max-w-md sm:max-w-lg p-5 sm:p-6">
+          <h3 className="font-bold text-lg sm:text-xl text-error">Confirm Deletion</h3>
+          <p className="py-4 text-base sm:text-lg">
+            Are you sure you really want to delete  
+            <strong className="text-base-content break-words"> "{gameToDelete?.title || 'this game'}"</strong>?<br />
             This action cannot be undone.
           </p>
-          <div className="modal-action">
-            <button className="btn btn-ghost" onClick={cancelDelete}>Cancel</button>
-            <button className="btn btn-error" onClick={confirmDelete}>Yes, Delete</button>
+          <div className="modal-action flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button className="btn btn-ghost w-full sm:w-auto order-2 sm:order-1" onClick={cancelDelete}>
+              Cancel
+            </button>
+            <button className="btn btn-error w-full sm:w-auto order-1 sm:order-2" onClick={confirmDelete}>
+              Yes, Delete
+            </button>
           </div>
         </div>
         <div className="modal-backdrop" onClick={cancelDelete}></div>
