@@ -127,6 +127,6 @@ Free tiers sleep after inactivity; use Vercel (frontend) + Railway (backend) for
 - **Database Schema**: Games model includes title (required, max 100 chars), reviews (0-5), online_or_offline (enum), subscription_price (min 0), downloads (min 0), game_size (required), release_date (required), category (enum: action, etc.), developer (required). Auto-timestamps included.
 - **Limitations & Security**: No authentication (add JWT later); CORS allows all origins (restrict in production); ratings are manual inputs.
 - **Contributing**: Fork the repo, create a branch for changes, submit PRs. Report bugs via GitHub Issues.
-- **License**: MIT License — open-source and free to use/modify.  
+ 
 
 Developed with care. Questions? Feel free to reach out via GitHub. Let's build more!
